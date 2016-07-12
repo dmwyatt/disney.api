@@ -33,7 +33,7 @@ def format_datetimes(datetimes: Sequence[Union[arrow.Arrow, datetime.datetime]],
 	return [x.strftime(dt_fmt) for x in datetimes]
 
 def main(config: Config) -> None:
-	entries = RestaurantsConfigEntry.get_many_from_json('restaurants_config.json')
+	entries = RestaurantsConfigEntry.get_many_from_json(config.restaurants_file)
 
 	entry_availabilities = {}
 	for entry in entries:
@@ -60,7 +60,7 @@ def main(config: Config) -> None:
 			print('No times available.')
 
 if __name__ == "__main__":
-	config = Config()
+	config = Config(sys.argv[1])
 
 	if config.singleton:
 
