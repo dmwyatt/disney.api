@@ -59,6 +59,11 @@ class Config:
 		value = self.get_from_config_or_environ('LOG_LEVEL', default="ERROR")
 		return getattr(logging, value)
 
+	@property
+	def restaurants_file(self):
+		value = self.get_from_config_or_environ('RESTAURANTS_FILE', default="restaurants_config.json")
+		return value
+
 	def get_from_config_or_environ(self, key, environ=None, default=None):
 		if environ is None:
 			environ = self.environ_prefix + key
