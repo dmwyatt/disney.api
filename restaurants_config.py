@@ -8,6 +8,7 @@ import arrow
 import datetime
 from dateutil import parser
 
+from config import Config
 from helpers import sort_datetimes_by_closeness_to_datetime, filter_datetimes
 from pages.restaurant import RestaurantPageAvailabilityForm
 
@@ -50,8 +51,9 @@ class RestaurantsConfigEntry:
 	    "leeway": 30
     }
 	"""
-	def __init__(self, data: Mapping[str, Union[str, int]]):
+	def __init__(self, data: Mapping[str, Union[str, int]], browser):
 		self._data = data
+		self._browser = browser
 
 		# required options
 		self.url = data.get('url')
@@ -102,7 +104,7 @@ class RestaurantsConfigEntry:
 	@property
 	def availability_form(self):
 		if self._cached_avail_form is None:
-			self._cached_avail_form = RestaurantPageAvailabilityForm(self.url, implicit_wait=2)
+			self._cached_avail_form = RestaurantPageAvailabilityForm(self.url, self._browser, implicit_wait=2)
 		if not self._cached_avail_form.has_fetched:
 			self._cached_avail_form.get()
 		return self._cached_avail_form
@@ -151,7 +153,7 @@ class RestaurantsConfigEntry:
 		return [self.dt]
 
 	@classmethod
-	def validate_json_file(cls, filepath: str) -> Sequence['RestaurantsConfigEntry']:
+	def validate_json_file(cls, filepath: str, browser) -> Sequence['RestaurantsConfigEntry']:
 		p = Path(filepath)
 		assert p.is_file(), "'{}' does not exist.".format(filepath)
 
@@ -159,8 +161,8 @@ class RestaurantsConfigEntry:
 			data = json.loads(f.read())
 
 
-		return [RestaurantsConfigEntry(entry) for entry in data]
+		return [RestaurantsConfigEntry(entry, browser) for entry in data]
 
 	@classmethod
-	def get_many_from_json(cls, filepath: str) -> Sequence['RestaurantsConfigEntry']:
-		return cls.validate_json_file(filepath)
+	def get_many_from_json(cls, filepath: str, browser) -> Sequence['RestaurantsConfigEntry']:
+		return cls.validate_json_file(filepath, browser)

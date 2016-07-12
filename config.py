@@ -6,17 +6,10 @@ from pathlib import Path
 
 config = None
 
-def get_config(filepath=None):
+def get_config(filepath: Path):
 	global config
 	if config is not None:
 		return config
-
-	config_file_name = 'config.json'
-
-	if filepath is None:
-		filepath = './{}'.format(config_file_name)
-
-	filepath = Path(filepath)
 
 	assert filepath.is_file(), "Cannot find %s." % str(filepath.absolute())
 
@@ -26,8 +19,8 @@ def get_config(filepath=None):
 
 
 class Config:
-	def __init__(self, environ_prefix='DISNEY_API_', filepath=None):
-		self._data = get_config(filepath=filepath)
+	def __init__(self, config_filepath, environ_prefix='DISNEY_API_'):
+		self._data = get_config(config_filepath)
 		self.environ_prefix = environ_prefix
 
 	@property

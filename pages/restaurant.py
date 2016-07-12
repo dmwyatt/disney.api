@@ -5,11 +5,9 @@ import re
 import webbrowser
 
 from dateutil import parser
-from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.common.keys import Keys
 
-from config import get_config
 from helpers import format_dt
 from pages.datepicker import JqueryUIDatePicker
 from pages.helpers import wait_for, elem_has_class
@@ -30,9 +28,9 @@ class RestaurantPageAvailabilityForm:
 	availability_check_submit_selector = 'button#finderForm-findTableButton'
 	loading_overylay_selector = '.pepLoadingOverlay'
 
-	def __init__(self, url: str, browser: webdriver = None, implicit_wait: int = 10):
+	def __init__(self, url: str, browser, implicit_wait: int = 10):
 		self.url = url
-		self.browser = browser or webdriver.PhantomJS(get_config()['PHANTOM_PATH'])
+		self.browser = browser
 		self.browser.implicitly_wait(implicit_wait)
 
 		self.has_fetched = False
