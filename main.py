@@ -11,10 +11,6 @@ from config import Config
 from notify_email import GmailHandler
 from restaurants_config import RestaurantsConfigEntry
 
-config = Config()
-logging.basicConfig(level=config.logging_level)
-logging.getLogger('selenium').setLevel(logging.WARNING)
-
 SINGLETON_ERR_CODE = 7
 
 lf = None
@@ -61,6 +57,9 @@ def main(config: Config) -> None:
 
 if __name__ == "__main__":
 	config = Config(sys.argv[1])
+
+	logging.basicConfig(level=config.logging_level)
+	logging.getLogger('selenium').setLevel(logging.WARNING)
 
 	if config.singleton:
 
