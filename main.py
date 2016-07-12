@@ -2,10 +2,12 @@ import datetime
 import fcntl
 import logging
 import sys
+from pathlib import Path
 from pprint import pprint, pformat
 from typing import List, Union, Sequence
 
 import arrow
+from selenium import webdriver
 
 from config import Config
 from notify_email import GmailHandler
@@ -29,7 +31,8 @@ def format_datetimes(datetimes: Sequence[Union[arrow.Arrow, datetime.datetime]],
 	return [x.strftime(dt_fmt) for x in datetimes]
 
 def main(config: Config) -> None:
-	entries = RestaurantsConfigEntry.get_many_from_json(config.restaurants_file)
+	browser = webdriver.PhantomJS(config.phantomjs_path)
+	entries = RestaurantsConfigEntry.get_many_from_json(config.restaurants_file, browser)
 
 	entry_availabilities = {}
 	for entry in entries:
@@ -56,7 +59,7 @@ def main(config: Config) -> None:
 			print('No times available.')
 
 if __name__ == "__main__":
-	config = Config(sys.argv[1])
+	config = Config(Path(sys.argv[1]))
 
 	logging.basicConfig(level=config.logging_level)
 	logging.getLogger('selenium').setLevel(logging.WARNING)
