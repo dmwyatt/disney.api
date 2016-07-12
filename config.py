@@ -47,17 +47,21 @@ class Config:
 
 	@property
 	def output_datetime_format(self):
-		value = self.get_from_config_or_environ('OUTPUT_DATETIME_FORMAT')
-		if value is None:
-			return "%d/%m/%Y %H:%M"
-		return value
+		return self.get_from_config_or_environ('OUTPUT_DATETIME_FORMAT', default="%d/%m/%Y %H:%M")
 
-	def get_from_config_or_environ(self, key, environ=None):
+	@property
+	def singleton(self):
+		return self.get_from_config_or_environ('MAKE_SINGLETON', default=True)
+
+	def get_from_config_or_environ(self, key, environ=None, default=None):
 		if environ is None:
 			environ = self.environ_prefix + key
 
 		value = self._data.get(key)
 		if value is None:
-			return os.environ.get(environ)
+			value = os.environ.get(environ)
+		if value is None:
+			value = default
 		return value
+
 

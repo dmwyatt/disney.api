@@ -10,3 +10,5 @@ chromedriver*
 config.json
 
 *.log
+
+.lock
