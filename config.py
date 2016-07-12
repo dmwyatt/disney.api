@@ -18,7 +18,7 @@ def get_config(filepath=None):
 
 	filepath = Path(filepath)
 
-	assert filepath.is_file(), "Cannot find %s." % config_file_name
+	assert filepath.is_file(), "Cannot find %s." % str(filepath.absolute())
 
 	with filepath.open('r') as f:
 		config = json.loads(f.read())
