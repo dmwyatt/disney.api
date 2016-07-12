@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -52,6 +53,11 @@ class Config:
 	@property
 	def singleton(self):
 		return self.get_from_config_or_environ('MAKE_SINGLETON', default=True)
+
+	@property
+	def logging_level(self):
+		value = self.get_from_config_or_environ('LOG_LEVEL', default="ERROR")
+		return getattr(logging, value)
 
 	def get_from_config_or_environ(self, key, environ=None, default=None):
 		if environ is None:

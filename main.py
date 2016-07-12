@@ -11,8 +11,8 @@ from config import Config
 from notify_email import GmailHandler
 from restaurants_config import RestaurantsConfigEntry
 
-
-logging.basicConfig(level=logging.DEBUG)
+config = Config()
+logging.basicConfig(level=config.logging_level)
 logging.getLogger('selenium').setLevel(logging.WARNING)
 
 SINGLETON_ERR_CODE = 7
