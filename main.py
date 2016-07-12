@@ -15,6 +15,8 @@ from restaurants_config import RestaurantsConfigEntry
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('selenium').setLevel(logging.WARNING)
 
+SINGLETON_ERR_CODE = 7
+
 lf = None
 
 def is_locked(lockfile):
@@ -40,11 +42,22 @@ def main(config: Config) -> None:
 		formatted = format_datetimes(entry.get_times(), config.output_datetime_format)
 		entry_availabilities[entry.availability_form.name].extend(formatted)
 
+	nope = []
+	for restaurant, availabities in entry_availabilities.items():
+		if not availabities:
+			nope.append(restaurant)
+
+	for n in nope:
+		del entry_availabilities[n]
+
 	if config.output == 'email':
 		gmail = GmailHandler(config.email_address, config.email_password)
 		gmail.send_mail('dmwyatt@contriving.net', 'availabilities', pformat(entry_availabilities))
 	else:
-		pprint(entry_availabilities)
+		if entry_availabilities:
+			pprint(entry_availabilities)
+		else:
+			print('No times available.')
 
 if __name__ == "__main__":
 	config = Config()
@@ -55,6 +68,6 @@ if __name__ == "__main__":
 			main(config)
 		else:
 			sys.stderr.write('Already running\n')
-			sys.exit(7)
+			sys.exit(SINGLETON_ERR_CODE)
 	else:
 		main(config)
