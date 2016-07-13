@@ -12,3 +12,5 @@ config.json
 *.log
 
 .lock
+
+restaurants_config.json

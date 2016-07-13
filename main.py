@@ -50,8 +50,9 @@ def main(config: Config) -> None:
 		del entry_availabilities[n]
 
 	if config.output == 'email':
-		gmail = GmailHandler(config.email_address, config.email_password)
-		gmail.send_mail('dmwyatt@contriving.net', 'availabilities', pformat(entry_availabilities))
+		if entry_availabilities:
+			gmail = GmailHandler(config.email_address, config.email_password)
+			gmail.send_mail('dmwyatt@contriving.net', 'availabilities', pformat(entry_availabilities))
 	else:
 		if entry_availabilities:
 			pprint(entry_availabilities)
