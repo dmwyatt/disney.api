@@ -1,0 +1,12 @@
+{
+  "PHANTOM_PATH": "/home/dusstin/bin/phantomjs/phantomjs-2.1.1-linux-x86_64/bin/phantomjs",
+  "EMAIL_PASSWORD": "yourpassword",
+  "EMAIL_ADDRESS": "youremail",
+  "OUTPUT": "email",
+  "OUTPUT_DATETIME_FORMAT": "%a %m/%d/%Y %I:%M %p",
+  "MAKE_SINGLETON": true,
+  "LOG_LEVEL": "DEBUG",
+  "RESTAURANTS_FILE": "restaurants_config.json",
+  "JOIN_APIKEY": "20948wuaj;ldksfw0-459ueasjg",
+  "JOIN_DEVICE_IDS": ["uw[gj;a;4938utadfslkjasdljf"]
+}

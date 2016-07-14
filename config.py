@@ -57,6 +57,14 @@ class Config:
 		value = self.get_from_config_or_environ('RESTAURANTS_FILE', default="restaurants_config.json")
 		return value
 
+	@property
+	def join_apikey(self):
+		return self.get_from_config_or_environ('JOIN_APIKEY')
+
+	@property
+	def join_device_ids(self):
+		return self.get_from_config_or_environ('JOIN_DEVICE_IDS')
+
 	def get_from_config_or_environ(self, key, environ=None, default=None):
 		if environ is None:
 			environ = self.environ_prefix + key
