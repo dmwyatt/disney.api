@@ -44,3 +44,8 @@ def sort_datetimes_by_closeness_to_datetime(datetimes: Sequence[datetime.datetim
 		return abs(fixed_ts - search_ts)
 
 	return sorted(datetimes, key=get_key)
+
+def difference_in_minutes(dt1: datetime.datetime, dt2: datetime.datetime) -> int:
+	d1_ts = time.mktime(dt1.timetuple())
+	d2_ts = time.mktime(dt2.timetuple())
+	return abs(int(d1_ts-d2_ts) / 60)
