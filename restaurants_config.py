@@ -39,7 +39,8 @@ class RestaurantsConfigEntry:
 
 	    # If you want to find all available reservations between two dates, you
 	    # may optionally provide this option.  Note that we will check each day between
-	    # the two dates, but we will only check the time from the 'datetime' on each day.
+	    # the two dates, but we will only check the time from the 'datetime' field on
+	    # each day OR if 'period' is provided we will check that period on each day.
 	    # Any time provided in 'to_date' is ignored.
 	    "to_date":  "09/10/2016",
 
@@ -86,7 +87,7 @@ class RestaurantsConfigEntry:
 			return to_date.replace(hour=self.dt.hour, minute=self.dt.minute)
 
 	def _validate_period(self):
-		valids = ['breakfast', 'lunch', 'dinner']
+		valids = ['breakfast', 'lunch', 'dinner', 'any']
 
 		period = self._data.get('period')
 		if period:
@@ -95,6 +96,7 @@ class RestaurantsConfigEntry:
 		self.breakfast = True if period == 'breakfast' else False
 		self.lunch = True if period == 'lunch' else False
 		self.dinner = True if period == 'dinner' else False
+		self.any = True if period == 'any' else False
 
 		return period
 
@@ -127,7 +129,8 @@ class RestaurantsConfigEntry:
 			self.party_size,
 			breakfast=self.breakfast,
 			lunch=self.lunch,
-			dinner=self.dinner
+			dinner=self.dinner,
+			any_time=self.any
 		)
 
 		return [get_avail(dt) for dt in self.datetimes]

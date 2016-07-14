@@ -22,5 +22,12 @@
     "datetime": "09/07/2016 7:00",
     "party_size": 4,
     "leeway": 60
+  },
+  {
+    "url": "https://disneyworld.disney.go.com/dining/cabins-at-fort-wilderness-resort/hoop-dee-doo-musical-revue/",
+    "datetime": "09/02/2016 8:00 PM",
+    "to_date": "09/10/2016 8:00 PM",
+    "party_size": 4,
+    "period": "any"
   }
 ]
