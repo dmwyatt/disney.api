@@ -10,6 +10,7 @@ import arrow
 from selenium import webdriver
 
 from config import Config
+from join import Join, PlainTextualNotification
 from notify_email import GmailHandler
 from restaurants_config import RestaurantsConfigEntry
 
@@ -49,15 +50,18 @@ def main(config: Config) -> None:
 	for n in nope:
 		del entry_availabilities[n]
 
-	if config.output == 'email':
-		if entry_availabilities:
-			gmail = GmailHandler(config.email_address, config.email_password)
-			gmail.send_mail('dmwyatt@contriving.net', 'availabilities', pformat(entry_availabilities))
-	else:
-		if entry_availabilities:
-			pprint(entry_availabilities)
-		else:
-			print('No times available.')
+	if config.output == 'email' and entry_availabilities:
+		gmail = GmailHandler(config.email_address, config.email_password)
+		gmail.send_mail('dmwyatt@contriving.net', 'availabilities', pformat(entry_availabilities))
+	elif not config.output and entry_availabilities:
+		pprint(entry_availabilities)
+	elif not config.output and not entry_availabilities:
+		print('No times available.')
+
+	if config.join_apikey and config.join_device_ids and entry_availabilities:
+		j = Join(config.join_apikey)
+		notification = PlainTextualNotification(pformat(entry_availabilities), title='Disney Availabilities')
+		j.send(config.join_device_ids, notification=notification)
 
 if __name__ == "__main__":
 	config = Config(Path(sys.argv[1]))
