@@ -50,7 +50,7 @@ class RestaurantPageAvailabilityForm:
 		self.check_has_fetched()
 		tp = BasicTimePicker(self.browser)
 		try:
-			tp.select_time(dt)
+			tp.select_time(dt, round_to_closest=True)
 		except TimeNotBookableError:
 			return
 
@@ -183,36 +183,52 @@ class RestaurantPageAvailabilityForm:
 
 		return times
 
-	def find_availability_for(self, dt: datetime.datetime, party_size: int, breakfast=False, lunch=False, dinner=False):
+	def find_availability_for(self, dt: datetime.datetime, party_size: int, breakfast=False, lunch=False, dinner=False, any_time=False):
 		self.get()
 		self.set_date(dt)
 
-		period = 'breakfast' if breakfast else 'lunch' if lunch else 'dinner' if dinner else 'any'
-
-		if not breakfast and not lunch and not dinner:
-			logger.info("Checking '{}' for {}".format(self.name, dt))
-		else:
-			logger.info("Checking '{}' for {}".format(self.name, period))
-
-
-		if breakfast:
-			self.set_breakfast()
-		elif lunch:
-			self.set_lunch()
-		elif dinner:
-			self.set_dinner()
-		else:
-			self.set_time(dt)
+		periods = [('breakfast', breakfast), ('lunch', lunch), ('dinner', dinner)]
+		period_text = ", ".join([x[0] for x in periods if x[1]])
 
 		self.set_partysize(party_size)
-		self.submit_availability_check()
-
-		period = 'breakfast' if breakfast else 'lunch' if lunch else 'dinner' if dinner else 'any'
 
 		info = {'restaurant': self.name,
 		        'party_size': party_size,
 		        'searched_at': datetime.datetime.now(),
-		        'looking_for': {'datetime': dt, 'period': period},
-		        'available_times': self.available_times}
+		        'looking_for': {'datetime': dt, 'period': period_text},
+		        'available_times': []}
+
+		if not any_time:
+			if breakfast:
+				self.set_breakfast()
+				logger.info("Checking '%s' for 'breakfast'.", self.name)
+				self.submit_availability_check()
+				info['available_times'].extend(self.available_times)
+			if lunch:
+				self.set_lunch()
+				logger.info("Checking '%s' for 'lunch'.", self.name)
+				self.submit_availability_check()
+				info['available_times'].extend(self.available_times)
+			if dinner:
+				self.set_dinner()
+				logger.info("Checking '%s' for 'dinner'.", self.name)
+				self.submit_availability_check()
+				info['available_times'].extend(self.available_times)
+		if not breakfast and not lunch and not dinner and not any_time:
+			self.set_time(dt)
+		if any_time:
+			self.check_has_fetched()
+			tp = BasicTimePicker(self.browser)
+			for sv in tp.selectable_values:
+				if sv.lower() not in [x[0] for x in periods]:
+					sv_dt = parser.parse(sv)
+					sv_dt = sv_dt.replace(year=dt.year, month=dt.month)
+					tp.select_time(sv_dt, round_to_closest=False)
+					logger.info("Checking '%s' for %s.", self.name, sv_dt)
+					self.submit_availability_check()
+					info['available_times'].extend(self.available_times)
+
+		self.submit_availability_check()
+
 
 		return info
