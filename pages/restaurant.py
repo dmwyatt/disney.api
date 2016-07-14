@@ -144,8 +144,10 @@ class RestaurantPageAvailabilityForm:
 		logger.debug('Submitting availability check.')
 		self.availability_submit.click()
 
-		wait_for(lambda: self.loading_overlay_displayed, 2)
-		wait_for(lambda: not self.loading_overlay_displayed, 10)
+		wait_for(lambda: self.loading_overlay_displayed, 8,
+		         on_failure=lambda: self.browser.save_screenshot('error.png'))
+		wait_for(lambda: not self.loading_overlay_displayed, 30,
+		         on_failure=lambda: self.browser.save_screenshot('error.png'))
 
 	@property
 	def available_times(self):
