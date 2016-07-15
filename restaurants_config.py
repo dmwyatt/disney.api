@@ -2,13 +2,11 @@ import json
 import logging
 from pathlib import Path
 from pprint import pformat
-from typing import Mapping, Union, Sequence
+from typing import Union, Sequence, MutableMapping
 
 import arrow
-import datetime
 from dateutil import parser
 
-from config import Config
 from helpers import sort_datetimes_by_closeness_to_datetime, filter_datetimes
 from pages.restaurant import RestaurantPageAvailabilityForm
 
@@ -52,7 +50,7 @@ class RestaurantsConfigEntry:
 	    "leeway": 30
     }
 	"""
-	def __init__(self, data: Mapping[str, Union[str, int]], browser):
+	def __init__(self, data: MutableMapping[str, Union[str, int]], browser):
 		self._data = data
 		self._browser = browser
 

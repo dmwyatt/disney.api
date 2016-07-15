@@ -1,7 +1,8 @@
 import logging
-from typing import Sequence, Any, Mapping
+from typing import Sequence, Any, MutableMapping
 
 import requests
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -113,18 +114,18 @@ class Join:
 		                 clipboard=clipboard,
 		                 notification=notification)
 
-	def _add(self, key: str, value: Any, d: Mapping[str, Any]):
+	def _add(self, key: str, value: Any, d: MutableMapping[str, Any]):
 		if value:
 			d[key] = value
 
-	def _add_obj_params(self, params_haver, d: Mapping[str, Any]) -> Mapping:
+	def _add_obj_params(self, params_haver, d: MutableMapping[str, Any]) -> MutableMapping:
 		if not params_haver:
 			return
 		params = params_haver.get_params()
 		for k, v in params.items():
 			self._add(k, v, d)
 
-	def _add2(self, d: Mapping[str, Any], **kwargs):
+	def _add2(self, d: MutableMapping[str, Any], **kwargs):
 		for k, v in kwargs.items():
 			if v is not None:
 				d[k] = v
