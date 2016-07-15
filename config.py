@@ -4,23 +4,23 @@ import os
 from pathlib import Path
 
 
-config = None
+_config = None
 
-def get_config(filepath: Path):
-	global config
-	if config is not None:
-		return config
+def _get_config(filepath: Path):
+	global _config
+	if _config is not None:
+		return _config
 
 	assert filepath.is_file(), "Cannot find %s." % str(filepath.absolute())
 
 	with filepath.open('r') as f:
-		config = json.loads(f.read())
-		return config
+		_config = json.loads(f.read())
+		return _config
 
 
 class Config:
 	def __init__(self, config_filepath, environ_prefix='DISNEY_API_'):
-		self._data = get_config(config_filepath)
+		self._data = _get_config(config_filepath)
 		self.environ_prefix = environ_prefix
 
 	@property
