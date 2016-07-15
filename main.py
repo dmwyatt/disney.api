@@ -31,30 +31,46 @@ def format_datetimes(datetimes: Sequence[Union[arrow.Arrow, datetime.datetime]],
                      dt_fmt: str) -> List[str]:
 	return [x.strftime(dt_fmt) for x in datetimes]
 
-def main(config: Config) -> None:
-	browser = webdriver.PhantomJS(config.phantomjs_path)
-	entries = RestaurantsConfigEntry.get_many_from_json(config.restaurants_file, browser)
-
+def format_entries(entries: Sequence[RestaurantsConfigEntry], config: Config):
+	# Get the times available for all of the restaurants
 	entry_availabilities = {}
 	for entry in entries:
 		if not entry.availability_form.name in entry_availabilities:
 			entry_availabilities[entry.availability_form.name] = []
+
+		# Format the datetimes in configured manner
 		formatted = format_datetimes(entry.get_times(), config.output_datetime_format)
+
+		# We might have other times available for this restaurant already,
+		# so we extend the existing list.
 		entry_availabilities[entry.availability_form.name].extend(formatted)
 
+	# We don't want the restaurants that don't have an available time
 	nope = []
-	for restaurant, availabities in entry_availabilities.items():
-		if not availabities:
+	for restaurant, availabilities in entry_availabilities.items():
+		if not availabilities:
 			nope.append(restaurant)
 
 	for n in nope:
 		del entry_availabilities[n]
 
+
+def main(config: Config) -> None:
+	browser = webdriver.PhantomJS(config.phantomjs_path)
+
+	# Read in all of the entries in the list of restaurants
+	entries = RestaurantsConfigEntry.get_many_from_json(config.restaurants_file, browser)
+
+	entry_availabilities = format_entries(entries)
+
+
 	if config.output == 'email' and entry_availabilities:
 		gmail = GmailHandler(config.email_address, config.email_password)
 		gmail.send_mail('dmwyatt@contriving.net', 'availabilities', pformat(entry_availabilities))
+
 	elif not config.output and entry_availabilities:
 		pprint(entry_availabilities)
+
 	elif not config.output and not entry_availabilities:
 		print('No times available.')
 
