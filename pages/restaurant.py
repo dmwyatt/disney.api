@@ -222,7 +222,7 @@ class RestaurantPageAvailabilityForm:
 			for sv in tp.selectable_values:
 				if sv.lower() not in [x[0] for x in periods]:
 					sv_dt = parser.parse(sv)
-					sv_dt = sv_dt.replace(year=dt.year, month=dt.month)
+					sv_dt = sv_dt.replace(year=dt.year, month=dt.month, day=dt.day)
 					tp.select_time(sv_dt, round_to_closest=False)
 					logger.info("Checking '%s' for %s.", self.name, sv_dt)
 					self.submit_availability_check()
