@@ -49,8 +49,12 @@ class Config:
 
 	@property
 	def logging_level(self):
+		levels = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
+
 		value = self.get_from_config_or_environ('LOG_LEVEL', default="ERROR")
-		return getattr(logging, value)
+		assert value in levels, "Logging must be one of {}".format(levels)
+
+		return value
 
 	@property
 	def restaurants_file(self):
