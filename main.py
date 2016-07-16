@@ -61,7 +61,7 @@ def main(config: Config) -> None:
 	# Read in all of the entries in the list of restaurants
 	entries = RestaurantsConfigEntry.get_many_from_json(config.restaurants_file, browser)
 
-	entry_availabilities = format_entries(entries)
+	entry_availabilities = format_entries(entries, config)
 
 
 	if config.output == 'email' and entry_availabilities:
