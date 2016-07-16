@@ -20,37 +20,42 @@ class ConfigError(Exception):
 
 class RestaurantsConfigEntry:
 	"""
-	Example entry with all options provided:
+	This class makes it so that an entry in the configured restaurant list
+	can "directly" access its own page and get various information and submit
+	the availability form.
+
+	Example entry from the restaurant list with all options explained:
 
 	{
-		# Restaurant page url
+		; Restaurant page url
 	    "url": "https://disneyworld.disney.go.com/dining/magic-kingdom/cinderella-royal-table/",
 
-	    # Datetime to find available reservations times for.
+	    ; Datetime to find available reservations times for.
 	    "datetime": "09/08/2016 18:00",
 
-	    # Number of people in your party.
+	    ; Number of people in your party.
 	    "party_size": 4,
 
 
-	    # The following are optional.
+	    ; The following are optional.
 
-	    # If you want to find all available reservations between two dates, you
-	    # may optionally provide this option.  Note that we will check each day between
-	    # the two dates, but we will only check the time from the 'datetime' field on
-	    # each day OR if 'period' is provided we will check that period on each day.
-	    # Any time provided in 'to_date' is ignored.
+	    ; If you want to find all available reservations between two dates, you
+	    ; may optionally provide this option.  Note that we will check each day between
+	    ; the two dates, but we will only check the time from the 'datetime' field on
+	    ; each day OR if 'period' is provided we will check that period on each day.
+	    ; Any time provided in 'to_date' is ignored.
 	    "to_date":  "09/10/2016",
 
-	    # If you provide "breakfast", "lunch" or "dinner" we will find times during those periods.
+	    ; If you provide "breakfast", "lunch", "dinner", or "any" we will find
+	    ; times during those periods.
 	    "period": "dinner",
 
-	    # The number of minutes plus/minus you're willing to accept for a reservation.
-	    # If not provided, we just use whatever Disney sends us when we tell them we want a time.
+	    ; The number of minutes plus/minus you're willing to accept for a reservation.
+	    ; If not provided, we just use whatever Disney sends us when we tell them we want a time.
 	    "leeway": 30
     }
 	"""
-	def __init__(self, data: MutableMapping[str, Union[str, int]], browser):
+	def __init__(self, data: MutableMapping[str, Union[str, int]], browser) -> None:
 		self._data = data
 		self._browser = browser
 
@@ -82,6 +87,8 @@ class RestaurantsConfigEntry:
 				to_date = parser.parse(to_date)
 			except ValueError:
 				raise ConfigError("Cannot parse 'to_date' value: {}".format(to_date))
+
+			# We ignore the time on `to_date`.
 			return to_date.replace(hour=self.dt.hour, minute=self.dt.minute)
 
 	def _validate_period(self):
@@ -122,6 +129,8 @@ class RestaurantsConfigEntry:
 			                                       name=self.availability_form.name,
 			                                       date=self.dt))
 
+		# This function does the work of calling out to our form handling class
+		# Put it in this lambda just to clean up the list comp that comes next
 		get_avail = lambda x: self.availability_form.find_availability_for(
 			x,
 			self.party_size,
@@ -160,7 +169,6 @@ class RestaurantsConfigEntry:
 
 		with p.open('r') as f:
 			data = json.loads(f.read())
-
 
 		return [RestaurantsConfigEntry(entry, browser) for entry in data]
 
