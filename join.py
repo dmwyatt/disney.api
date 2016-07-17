@@ -5,7 +5,6 @@ import requests
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 JOIN_URL = "https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush"
 
