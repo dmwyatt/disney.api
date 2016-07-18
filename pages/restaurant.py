@@ -214,8 +214,12 @@ class RestaurantPageAvailabilityForm:
 				logger.info("Checking '%s' for 'dinner'.", self.name)
 				self.submit_availability_check()
 				info['available_times'].extend(self.available_times)
+
 		if not breakfast and not lunch and not dinner and not any_time:
 			self.set_time(dt)
+			self.submit_availability_check()
+			info['available_times'].extend(self.available_times)
+
 		if any_time:
 			self.check_has_fetched()
 			tp = BasicTimePicker(self.browser)
@@ -228,7 +232,6 @@ class RestaurantPageAvailabilityForm:
 					self.submit_availability_check()
 					info['available_times'].extend(self.available_times)
 
-		self.submit_availability_check()
 
 
 		return info
