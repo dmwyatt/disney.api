@@ -11,7 +11,7 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.support.select import Select
 
-from helpers import roundTime, difference_in_minutes
+from helpers import roundTime, difference_in_minutes, format_dt
 from pages.helpers import wait_for
 
 logger = logging.getLogger(__name__)
@@ -45,50 +45,56 @@ class BasicTimePicker:
 	def selectable_texts(self):
 		return [x.text for x in self.option_elements]
 
-	def select_time(self, desired_dt: datetime.datetime, leeway: int=None, round_to_closest=True):
-		"""
-		Selects a time from the time select.
+	def select_exact_time(self, desired_dt: datetime.datetime):
+		the_time = desired_dt.strftime('%H:%M')
+		if not the_time in self.selectable_values:
+			raise TimeNotBookableError("Cannot select '{}' from {}".format(the_time, self.selectable_values))
+		self.select.select_by_value(the_time)
 
-		If `leeway` is not provided and `round_to_closest` is False, we try to select
-		the exact time in `desired_dt`.
+	def select_time_with_leeway(self, desired_dt: datetime.datetime, leeway: int):
+		closest = None
+		closest_delta = None
+		for sv in self.selectable_values:
+			if not re.match('\d\d:\d\d', sv):
+				continue
 
-		If `round_to_closest` is True we ignore `leeway` and select the closest
-		time to that specified in `desired_dt`.
+			sv_dt = time_to_datetime(sv, desired_dt)
 
-		If `leeway` is provided and `round_to_closest` is False, we select the time
-		closest to `desired_dt` that is less than `leeway` minutes away.
+			if not closest:
+				closest = sv_dt
+				closest_delta = difference_in_minutes(desired_dt, closest)
 
+			curr_sv_delta = difference_in_minutes(sv_dt, desired_dt)
+			if curr_sv_delta < closest_delta:
+				closest = sv_dt
+				closest_delta = curr_sv_delta
 
-		:param desired_dt:
-		:param leeway:
-		:param round_to_closest:
-		:return:
-		:raises TimeNotBookableError: If provided arguments do not allow us to select anything.
-		"""
-		select_me = None
-		if leeway is not None or round_to_closest:
-			closest = None
-			for selectable_value in self.selectable_values:
-				selectable_value_dt = parser.parse(selectable_value)
-				selectable_value_dt = selectable_value_dt.replace(year=desired_dt.year, month=desired_dt.month,
-				                                                  day=desired_dt.day)
-				if not closest:
-					closest = selectable_value_dt
-				closest_minutes_delta = difference_in_minutes(selectable_value_dt, closest)
-				if not round_to_closest:
-					if closest_minutes_delta < leeway:
-						select_me = selectable_value
-				else:
-					select_me = selectable_value
-
+		if closest_delta <= leeway:
+			self.select_exact_time(closest)
 		else:
-			select_me = desired_dt.strftime('%H:%M')
+			raise TimeNotBookableError("There is no selectable time that's "
+			                           "less than {} minutes from {} "
+			                           "in {}".format(leeway, format_dt(desired_dt), self.selectable_values))
 
-		logger.info("Trying to select %s from %s", select_me, self.selectable_values)
-		if select_me not in self.selectable_values:
-			raise TimeNotBookableError("Cannot select '{}' from {}".format(select_me, self.selectable_values))
+	def select_closest_time(self, desired_dt: datetime.datetime):
+		closest = None
+		closest_delta = None
+		for sv in self.selectable_values:
+			if not re.match('\d\d:\d\d', sv):
+				continue
 
-		self.select.select_by_value(select_me)
+			sv_dt = time_to_datetime(sv, desired_dt)
+
+			if not closest:
+				closest = sv_dt
+				closest_delta = difference_in_minutes(desired_dt, closest)
+
+			curr_sv_delta = difference_in_minutes(sv_dt, desired_dt)
+			if curr_sv_delta < closest_delta:
+				closest = sv_dt
+				closest_delta = curr_sv_delta
+
+		self.select_exact_time(closest)
 
 	def select_meal(self, meal):
 		try:
@@ -106,3 +112,10 @@ class BasicTimePicker:
 		self.select_meal('Dinner')
 
 
+def time_to_datetime(the_time: str, reference_dt: datetime.datetime) -> datetime.datetime:
+	"""
+	Takes a string representing a time and a datetime.datetime that represents the day that time
+	is on, and returns a datetime.datetime on that day with the new time.
+	"""
+	dt = parser.parse(the_time)
+	return dt.replace(year=reference_dt.year, month=reference_dt.month, day=reference_dt.day)
