@@ -95,6 +95,7 @@ if __name__ == "__main__":
 
 	logging.basicConfig(level=config.logging_level)
 	logging.getLogger('selenium').setLevel(logging.WARNING)
+	logging.getLogger('requests').setLevel(logging.WARNING)
 
 	if config.singleton:
 
