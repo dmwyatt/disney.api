@@ -19,6 +19,9 @@ SINGLETON_ERR_CODE = 7
 lf = None
 
 def is_locked(lockfile):
+	"""
+	Gets lock on file to make sure we don't run more than one instance of script.
+	"""
 	global lf
 	lf = open(lockfile, 'w')
 	try:
@@ -29,9 +32,15 @@ def is_locked(lockfile):
 
 def format_datetimes(datetimes: Sequence[Union[arrow.Arrow, datetime.datetime]],
                      dt_fmt: str) -> List[str]:
+	"""Formats a sequence of datetimes with provided format string."""
 	return [x.strftime(dt_fmt) for x in datetimes]
 
 def format_entries(entries: Sequence[RestaurantsConfigEntry], config: Config):
+	"""Given a list of RestaurantsConfigEntry's return a dict in the format
+	we desire.
+
+	Namely, a mapping of restaurant names to available times.
+	"""
 	# Get the times available for all of the restaurants
 	entry_availabilities = {}
 	for entry in entries:
