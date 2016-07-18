@@ -63,6 +63,8 @@ def format_entries(entries: Sequence[RestaurantsConfigEntry], config: Config):
 	for n in nope:
 		del entry_availabilities[n]
 
+	return entry_availabilities
+
 
 def main(config: Config) -> None:
 	browser = webdriver.PhantomJS(config.phantomjs_path)
